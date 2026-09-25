@@ -1,0 +1,381 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AURA // STUDIO</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600&family=Playfair+Display:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+    <style>
+        /* PURE CSS RESET & VARIABLES */
+        :root {
+            --bg-obsidian: #050505;
+            --surface: #0a0a0a;
+            --gold: #cca43b;
+            --text-main: #f5f5f5;
+            --text-muted: #555;
+            --border: #111;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Outfit', sans-serif; }
+
+        body { background: var(--bg-obsidian); color: var(--text-main); height: 100vh; overflow: hidden; display: flex; flex-direction: column; }
+        .font-serif { font-family: 'Playfair Display', serif; font-style: italic; }
+
+        /* PURE FLEXBOX LAYOUT */
+        .workspace { display: flex; flex: 1; overflow: hidden; }
+
+        /* SIDEBAR */
+        .sidebar {
+            width: 280px; background: var(--surface); border-right: 1px solid var(--border);
+            display: flex; flex-direction: column; z-index: 10;
+        }
+        .brand-header { padding: 40px; }
+        .brand-title { font-size: 2.5rem; font-weight: 400; letter-spacing: -1px; }
+        
+        .nav-label { padding: 0 32px; font-size: 0.6rem; text-transform: uppercase; letter-spacing: 0.3em; color: #444; margin-bottom: 16px; }
+        .nav-menu { flex: 1; display: flex; flex-direction: column; }
+        .nav-btn {
+            background: transparent; border: none; border-left: 2px solid transparent;
+            color: #555; text-align: left; padding: 16px 32px;
+            font-size: 0.75rem; text-transform: uppercase; letter-spacing: 2px;
+            cursor: pointer; transition: 0.4s ease; display: flex; justify-content: space-between; align-items: center;
+        }
+        .nav-btn:hover { color: #fff; background: rgba(255,255,255,0.02); }
+        .nav-btn.active { color: var(--gold); border-left-color: var(--gold); background: rgba(255,255,255,0.02); }
+        .soon-badge { font-size: 0.55rem; padding: 2px 6px; border: 1px solid #222; color: #444; }
+
+        .user-panel { padding: 32px; border-top: 1px solid var(--border); }
+        .user-label { font-size: 0.6rem; text-transform: uppercase; letter-spacing: 0.2em; color: #555; margin-bottom: 4px; }
+        .user-name { font-size: 0.9rem; letter-spacing: 1px; color: #ddd; margin-bottom: 24px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .logout-btn { background: transparent; border: none; font-size: 0.6rem; text-transform: uppercase; letter-spacing: 0.2em; color: #666; cursor: pointer; transition: 0.3s; }
+        .logout-btn:hover { color: #ef4444; }
+
+        /* MAIN CONTENT AREA */
+        .main-area { flex: 1; display: flex; flex-direction: column; overflow: hidden; position: relative; }
+        
+        /* HEADER / SEARCH */
+        .main-header {
+            padding: 60px 48px;
+            background: linear-gradient(to bottom, #111, transparent);
+            z-index: 0;
+        }
+        .view-title { font-size: 4rem; letter-spacing: -1px; margin-bottom: 32px; }
+        .search-bar {
+            width: 100%; max-width: 500px; background: transparent; border: none; border-bottom: 1px solid #333;
+            color: #fff; padding-bottom: 12px; font-size: 0.9rem; transition: 0.3s;
+        }
+        .search-bar:focus { outline: none; border-bottom-color: var(--gold); }
+        .search-bar::placeholder { color: #444; letter-spacing: 1px; }
+
+        /* LIST VIEW */
+        .list-container { flex: 1; overflow-y: auto; padding: 0 48px 100px 48px; }
+        .list-container::-webkit-scrollbar { width: 4px; }
+        .list-container::-webkit-scrollbar-thumb { background: #222; }
+
+        /* Pure CSS List Rows */
+        .track-row {
+            display: flex; align-items: center; padding: 12px 16px; border-bottom: 1px solid var(--border);
+            cursor: pointer; transition: 0.4s ease; opacity: 0; animation: fadeUp 0.6s forwards;
+        }
+        .track-row:hover { background: #0f0f0f; transform: translateX(8px); }
+        
+        .track-cover-wrap { position: relative; width: 48px; height: 48px; overflow: hidden; margin-right: 20px; }
+        .track-cover-wrap img { width: 100%; height: 100%; object-fit: cover; filter: grayscale(50%); transition: 0.6s; }
+        .track-row:hover .track-cover-wrap img { filter: grayscale(0%) scale(1.05); }
+        
+        .play-overlay {
+            position: absolute; inset: 0; background: rgba(0,0,0,0.6);
+            display: flex; align-items: center; justify-content: center;
+            opacity: 0; transition: 0.3s;
+        }
+        .track-row:hover .play-overlay { opacity: 1; }
+        .play-triangle {
+            width: 0; height: 0; border-top: 5px solid transparent; border-bottom: 5px solid transparent; border-left: 8px solid var(--gold); margin-left: 2px;
+        }
+
+        .track-info { flex: 2; min-width: 0; }
+        .track-title { font-size: 0.9rem; letter-spacing: 0.05em; color: #eee; margin-bottom: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .track-artist { font-size: 0.65rem; text-transform: uppercase; letter-spacing: 0.1em; color: #555; }
+        
+        .track-genre { flex: 1; font-size: 0.65rem; text-transform: uppercase; letter-spacing: 0.2em; color: #444; }
+        
+        .track-actions { display: flex; justify-content: flex-end; width: 80px; }
+        .like-heart { background: transparent; border: none; font-size: 1.2rem; cursor: pointer; transition: 0.3s; color: #333; }
+        .like-heart:hover { color: #fff; transform: scale(1.2); }
+        .like-heart.liked { color: var(--gold); }
+
+        /* PLAYER FOOTER */
+        .player-bar {
+            background: var(--bg-obsidian); border-top: 1px solid var(--border);
+            padding: 20px 40px; display: flex; align-items: center; justify-content: space-between;
+            z-index: 50;
+        }
+        
+        .np-info { display: flex; align-items: center; width: 30%; gap: 24px; min-width: 0; }
+        .np-cover { width: 50px; height: 50px; object-fit: cover; opacity: 0.2; transition: 1s; border: 1px solid #222; }
+        .np-text { min-width: 0; }
+        .np-title { font-size: 0.9rem; color: white; margin-bottom: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .np-artist { font-size: 0.65rem; text-transform: uppercase; letter-spacing: 0.1em; color: #666; }
+        
+        .np-controls { flex: 1; display: flex; flex-direction: column; items-center; max-width: 600px; margin: 0 auto; }
+        .btn-group { display: flex; align-items: center; justify-content: center; gap: 30px; margin-bottom: 16px; }
+        .ctrl-btn { background: transparent; border: none; color: #888; font-size: 0.65rem; text-transform: uppercase; letter-spacing: 0.2em; cursor: pointer; transition: 0.3s; }
+        .ctrl-btn:hover { color: #fff; }
+        
+        .play-btn-main {
+            width: 44px; height: 44px; border: 1px solid #333; border-radius: 50%;
+            display: flex; align-items: center; justify-content: center; color: #fff;
+        }
+        .play-btn-main:hover { border-color: var(--gold); background: var(--gold); color: #000; transform: scale(1.05); }
+        .play-icon { width: 0; height: 0; border-top: 5px solid transparent; border-bottom: 5px solid transparent; border-left: 8px solid currentColor; margin-left: 3px; }
+        .pause-icon { display: flex; gap: 3px; }
+        .pause-bar { width: 3px; height: 12px; background: currentColor; }
+
+        .progress-wrapper { width: 100%; display: flex; align-items: center; gap: 20px; font-family: monospace; font-size: 0.65rem; color: #555; }
+        .progress-track { flex: 1; height: 2px; background: #222; cursor: pointer; position: relative; }
+        .progress-fill { background: var(--gold); height: 100%; width: 0%; position: relative; transition: width 0.1s linear; }
+        .progress-fill::after { content: ''; position: absolute; right: -4px; top: -3px; width: 8px; height: 8px; background: #fff; border-radius: 50%; opacity: 0; transition: 0.2s; }
+        .progress-track:hover .progress-fill::after { opacity: 1; }
+
+        .np-extra { width: 30%; display: flex; justify-content: flex-end; }
+        .quality-badge { font-size: 0.55rem; text-transform: uppercase; letter-spacing: 0.3em; color: #444; border: 1px solid #222; padding: 4px 12px; }
+
+        @keyframes fadeUp { to { opacity: 1; } }
+    </style>
+</head>
+<body>
+
+    <div class="workspace">
+        
+        <!-- SIDEBAR -->
+        <aside class="sidebar">
+            <div class="brand-header">
+                <h1 class="brand-title font-serif">Aura<span style="color: var(--gold)">.</span></h1>
+            </div>
+            
+            <div class="nav-label">Library</div>
+            <nav class="nav-menu">
+                <button onclick="app.setView('all')" id="nav-all" class="nav-btn active">Master Vault</button>
+                <button onclick="app.setView('liked')" id="nav-liked" class="nav-btn">Favorites</button>
+                <button onclick="app.setView('playlists')" id="nav-playlists" class="nav-btn">Playlists <span class="soon-badge">Soon</span></button>
+                <button onclick="app.setView('downloads')" id="nav-downloads" class="nav-btn">Downloads <span class="soon-badge">Soon</span></button>
+            </nav>
+
+            <div class="user-panel">
+                <div class="user-label">Authenticated As</div>
+                <div class="user-name" id="uName">User</div>
+                <button onclick="app.logout()" class="logout-btn">Disconnect</button>
+            </div>
+        </aside>
+
+        <!-- MAIN -->
+        <main class="main-area">
+            <div class="main-header">
+                <h2 class="view-title font-serif" id="vTitle">Cinematic Audio</h2>
+                <input type="text" id="search" placeholder="Search Master Tracks..." oninput="app.render()" class="search-bar">
+            </div>
+
+            <div class="list-container" id="listContainer">
+                <!-- Javascript Injection -->
+            </div>
+        </main>
+    </div>
+
+    <!-- PLAYER -->
+    <footer class="player-bar">
+        
+        <div class="np-info">
+            <img id="pImg" src="https://images.unsplash.com/photo-1614613535308-eb5fbd3d2c17?w=100&q=80" class="np-cover">
+            <div class="np-text">
+                <div class="np-title" id="pTitle">System Standby</div>
+                <div class="np-artist" id="pArt">Awaiting Input</div>
+            </div>
+            <button onclick="app.likeCurrent()" class="like-heart" id="likeBtn" style="opacity: 0; pointer-events: none;">♥</button>
+        </div>
+
+        <div class="np-controls">
+            <div class="btn-group">
+                <button onclick="app.skip(-1)" class="ctrl-btn">Prev</button>
+                <button onclick="app.togglePlay()" id="playBtn" class="ctrl-btn play-btn-main">
+                    <div class="play-icon"></div>
+                </button>
+                <button onclick="app.skip(1)" class="ctrl-btn">Next</button>
+            </div>
+            <div class="progress-wrapper">
+                <span id="pCur">0:00</span>
+                <div class="progress-track" onclick="app.seek(event)"><div class="progress-fill" id="pBar"></div></div>
+                <span id="pDur">0:00</span>
+            </div>
+        </div>
+
+        <div class="np-extra">
+            <div class="quality-badge">Spatial Audio Enabled</div>
+        </div>
+
+    </footer>
+
+    <script>
+        const DB_KEY = 'aura_final_db';
+        const SESSION_KEY = 'aura_final_session';
+
+        const app = {
+            session: JSON.parse(localStorage.getItem(SESSION_KEY)),
+            likes: new Set(),
+            view: 'all',
+            idx: -1,
+            list: [],
+            playing: false,
+            sec: 0,
+            dur: 0,
+            timer: null,
+
+            init() {
+                if (!this.session) window.location.href = 'login.html';
+                document.getElementById('uName').innerText = this.session.name;
+                const saved = localStorage.getItem(`aura_f_likes_${this.session.email}`);
+                if (saved) this.likes = new Set(JSON.parse(saved));
+                this.render();
+            },
+
+            setView(v) {
+                if (v === 'playlists' || v === 'downloads') return;
+                
+                this.view = v;
+                document.getElementById('nav-all').classList.toggle('active', v === 'all');
+                document.getElementById('nav-liked').classList.toggle('active', v === 'liked');
+                document.getElementById('vTitle').innerText = v === 'all' ? 'Cinematic Audio' : 'Personal Vault';
+                this.render();
+            },
+
+            render() {
+                const db = JSON.parse(localStorage.getItem(DB_KEY)) || { songs: [] };
+                const q = document.getElementById('search').value.toLowerCase();
+                
+                this.list = db.songs.reverse().filter(s => {
+                    const mQ = s.title.toLowerCase().includes(q) || s.artist.toLowerCase().includes(q);
+                    const mV = this.view === 'all' || this.likes.has(s.id);
+                    return mQ && mV;
+                });
+
+                const container = document.getElementById('listContainer');
+                if(this.list.length === 0) {
+                    container.innerHTML = `<div style="padding: 60px 0; color: #444; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 2px;">No audio data found.</div>`;
+                    return;
+                }
+
+                container.innerHTML = this.list.map((s, i) => `
+                    <div class="track-row" style="animation-delay: ${i * 0.05}s" onclick="app.play(${i})">
+                        <div class="track-cover-wrap">
+                            <img src="${s.cover}">
+                            <div class="play-overlay"><div class="play-triangle"></div></div>
+                        </div>
+                        <div class="track-info">
+                            <div class="track-title">${s.title}</div>
+                            <div class="track-artist">${s.artist}</div>
+                        </div>
+                        <div class="track-genre">${s.genre}</div>
+                        <div class="track-actions">
+                            <button class="like-heart ${this.likes.has(s.id) ? 'liked' : ''}" onclick="event.stopPropagation(); app.toggleLike(${s.id})">♥</button>
+                        </div>
+                    </div>
+                `).join('');
+            },
+
+            play(i) {
+                this.idx = i;
+                const s = this.list[i];
+                const img = document.getElementById('pImg');
+                img.src = s.cover;
+                img.style.opacity = '1';
+                document.getElementById('pTitle').innerText = s.title;
+                document.getElementById('pArt').innerText = s.artist;
+                
+                const timeParts = s.duration.split(':');
+                this.dur = parseInt(timeParts[0])*60 + parseInt(timeParts[1] || 0);
+                document.getElementById('pDur').innerText = s.duration;
+                
+                this.sec = 0;
+                this.updateUI();
+                
+                const likeBtn = document.getElementById('likeBtn');
+                likeBtn.style.opacity = '1';
+                likeBtn.style.pointerEvents = 'auto';
+                likeBtn.className = `like-heart ${this.likes.has(s.id) ? 'liked' : ''}`;
+
+                if (!this.playing) this.togglePlay();
+            },
+
+            togglePlay() {
+                if (this.idx === -1 && this.list.length > 0) return this.play(0);
+                if (this.idx === -1) return;
+
+                this.playing = !this.playing;
+                const btn = document.getElementById('playBtn');
+
+                if (this.playing) {
+                    btn.innerHTML = '<div class="pause-icon"><div class="pause-bar"></div><div class="pause-bar"></div></div>';
+                    this.timer = setInterval(() => {
+                        this.sec++;
+                        if (this.sec >= this.dur) this.skip(1);
+                        else this.updateUI();
+                    }, 1000);
+                } else {
+                    btn.innerHTML = '<div class="play-icon"></div>';
+                    clearInterval(this.timer);
+                }
+            },
+
+            skip(dir) {
+                if (this.list.length === 0) return;
+                let next = this.idx + dir;
+                if (next >= this.list.length) next = 0;
+                if (next < 0) next = this.list.length - 1;
+                this.play(next);
+            },
+
+            seek(e) {
+                if (this.dur === 0) return;
+                const rect = e.currentTarget.getBoundingClientRect();
+                const pct = (e.clientX - rect.left) / rect.width;
+                this.sec = Math.floor(this.dur * pct);
+                this.updateUI();
+            },
+
+            updateUI() {
+                const m = Math.floor(this.sec / 60);
+                const s = this.sec % 60;
+                document.getElementById('pCur').innerText = `${m}:${s<10?'0':''}${s}`;
+                document.getElementById('pBar').style.width = `${(this.sec/this.dur)*100}%`;
+            },
+
+            toggleLike(id) {
+                if (this.likes.has(id)) this.likes.delete(id);
+                else this.likes.add(id);
+                
+                localStorage.setItem(`aura_f_likes_${this.session.email}`, JSON.stringify([...this.likes]));
+                this.render(); 
+                
+                if (this.idx !== -1 && this.list[this.idx].id === id) {
+                    document.getElementById('likeBtn').className = `like-heart ${this.likes.has(id) ? 'liked' : ''}`;
+                }
+            },
+
+            likeCurrent() {
+                if (this.idx === -1) return;
+                this.toggleLike(this.list[this.idx].id);
+            },
+
+            logout() {
+                document.body.style.opacity = 0;
+                document.body.style.transition = "opacity 0.8s ease";
+                setTimeout(() => {
+                    localStorage.removeItem(SESSION_KEY);
+                    window.location.href = 'login.html';
+                }, 800);
+            }
+        };
+
+        app.init();
+    </script>
+</body>
+</html>

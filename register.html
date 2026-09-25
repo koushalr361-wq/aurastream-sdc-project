@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Registration Page</title>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background-color: #090514;
+            color: #ffffff;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        /* Custom smooth scrollbar */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #090514;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #1e1b4b;
+            border-radius: 10px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #8b5cf6;
+        }
+
+        /* Form Layout */
+        .container {
+            width: 100%;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            
+        }
+
+        .form-box {
+            background: #1e1b4b;
+            padding: 40px;
+            border-radius: 16px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            width: 100%;
+            max-width: 400px;
+            border-radius: 30px;
+        }
+
+        .form-box h2 {
+            font-size: 28px;
+            margin-bottom: 5px;
+            color: #ffffff;
+        }
+
+        .subtitle {
+            font-size: 14px;
+            color: #a1a1aa;
+            margin-bottom: 30px;
+        }
+
+        .input-group {
+            margin-bottom: 20px;
+        }
+
+        .input-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-size: 14px;
+            font-weight: 500;
+            color: #e4e4e7;
+        }
+
+        .input-group input {
+            width: 100%;
+            padding: 12px 15px;
+            background: #090514;
+            border: 1px solid #3f3f46;
+            color: #ffffff;
+            border-radius: 8px;
+            font-family: inherit;
+            outline: none;
+            transition: border-color 0.3s;
+        }
+
+        .input-group input:focus {
+            border-color: #8b5cf6;
+        }
+
+        button {
+            width: 100%;
+            padding: 14px;
+            background: #8b5cf6;
+            color: #ffffff;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            font-family: inherit;
+            cursor: pointer;
+            transition: background 0.3s;
+            margin-top: 10px;
+        }
+
+        button:hover {
+            background: #7c3aed;
+        }
+
+        .login-link {
+            margin-top: 25px;
+            text-align: center;
+            font-size: 14px;
+            color: #a1a1aa;
+        }
+
+        .login-link a {
+            color: #8b5cf6;
+            text-decoration: none;
+            font-weight: 600;
+            transition: color 0.3s;
+        }
+
+        .login-link a:hover {
+            color: #c4b5fd;
+        }
+
+        .message {
+            margin-top: 15px;
+            text-align: center;
+            font-size: 14px;
+            font-weight: 500;
+            min-height: 20px;
+        }
+
+        .message.error {
+            color: #ef4444;
+        }
+
+        .message.success {
+            color: #10b981;
+        }
+    </style>
+</head>
+<body>
+   <div class="container">
+        <div class="form-box">
+            <h2>Create Account</h2>
+            <p class="subtitle">Register to Get Started</p>
+            <form id="registerForm">
+                <div class="input-group">
+                    <label for="name">Full Name</label>
+                    <input type="text" name="fullname" id="name" placeholder="Enter Full Name" required>
+                </div>
+                <div class="input-group">
+                    <label for="email">Email</label>
+                    <input type="email" name="email" id="email" placeholder="Enter Email" required>
+                </div>
+                <div class="input-group">
+                    <label for="password">Password</label>
+                    <input type="password" name="password" id="password" placeholder="Enter Password" required>
+                </div>
+                <div class="input-group">
+                    <label for="cnfpassword">Confirm Password</label>
+                    <input type="password" name="cnfpassword" id="cnfpassword" placeholder="Confirm Password" required>
+                </div>
+                <button type="submit">Register</button>
+                <p class="message"></p>
+            </form>
+            <p class="login-link">Already Registered? <a href="login.html">Login</a></p>
+        </div>
+    </div>
+   
+<script>
+    document.getElementById('registerForm').addEventListener('submit', function(event) {
+        event.preventDefault(); 
+
+        const fullname = document.getElementById('name').value;
+        const email = document.getElementById('email').value;
+        const password = document.getElementById('password').value;
+        const cnfpassword = document.getElementById('cnfpassword').value;
+        const messageElement = document.querySelector('.message');
+        
+        if (password !== cnfpassword) {
+            messageElement.textContent = "Passwords do not match!";
+            messageElement.className = "message error";
+            return;
+        }
+
+        const userData = {
+            fullname: fullname,
+            email: email,
+            password: password
+        };
+        
+        let users = JSON.parse(localStorage.getItem('users')) || [];
+        let existingUser = users.find(user => user.email === email);
+        
+        if (existingUser) {
+            messageElement.textContent = "Email already registered!";
+            messageElement.className = "message error";
+            return;
+        }
+        
+        users.push(userData);
+        localStorage.setItem('users', JSON.stringify(users));
+        
+        messageElement.textContent = "Registration successful! Redirecting...";
+        messageElement.className = "message success";
+        document.getElementById('registerForm').reset(); 
+
+        // Added a 1.5 second delay so the user can see the success message
+        setTimeout(() => {
+            window.location.href = 'login.html';
+        }, 1500);
+    });
+</script>
+</body>
+</html>

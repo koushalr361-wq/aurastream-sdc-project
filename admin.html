@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AURA // MASTER CONTROL</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600&family=Playfair+Display:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+    <style>
+        /* VANILLA CSS RESET & VARIABLES */
+        :root {
+            --bg-obsidian: #050505;
+            --surface: #0a0a0a;
+            --gold: #cca43b;
+            --text-main: #f5f5f5;
+            --text-muted: #737373;
+            --border: #1a1a1a;
+            --transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Outfit', sans-serif; }
+
+        body { background: var(--bg-obsidian); color: var(--text-main); padding: 40px; min-height: 100vh; }
+        .font-serif { font-family: 'Playfair Display', serif; }
+
+        /* LAYOUT - CSS GRID */
+        .dashboard {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: 1fr 2.5fr; /* Pure CSS Grid */
+            gap: 40px;
+        }
+
+        /* HEADER */
+        header {
+            display: flex; justify-content: space-between; align-items: flex-end;
+            margin-bottom: 60px; max-width: 1400px; margin-left: auto; margin-right: auto;
+            animation: fadeUp 0.8s forwards;
+        }
+        h1 { font-size: 2.5rem; font-weight: 400; font-style: italic; }
+        .op-label { font-size: 0.65rem; text-transform: uppercase; letter-spacing: 0.2em; color: var(--text-muted); margin-top: 8px; }
+
+        /* CARDS */
+        .cine-card {
+            background: var(--surface); border: 1px solid var(--border);
+            padding: 30px; transition: var(--transition);
+            animation: fadeUp 0.8s forwards; opacity: 0;
+        }
+        .cine-card:hover { border-color: #333; }
+
+        /* STATS */
+        .stats-container { display: flex; gap: 40px; margin-bottom: 40px; }
+        .stat-label { font-size: 0.65rem; text-transform: uppercase; letter-spacing: 0.2em; color: #666; margin-bottom: 8px; }
+        .stat-number { font-size: 2.5rem; font-weight: 300; }
+
+        /* FORM */
+        .form-title { font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.2em; color: #888; margin-bottom: 30px; border-bottom: 1px solid #222; padding-bottom: 20px; }
+        .cine-input {
+            width: 100%; background: transparent; border: none; border-bottom: 1px solid #222;
+            color: #fff; padding: 16px 0; font-size: 0.85rem; transition: var(--transition);
+            margin-bottom: 20px;
+        }
+        .cine-input:focus { outline: none; border-bottom-color: var(--gold); }
+        .input-row { display: flex; gap: 20px; }
+        .input-row select, .input-row input { flex: 1; }
+        
+        .cine-btn {
+            width: 100%; background: transparent; border: 1px solid #333; color: #fff;
+            text-transform: uppercase; letter-spacing: 2px; font-size: 0.75rem;
+            padding: 16px; cursor: pointer; transition: var(--transition);
+            margin-top: 20px;
+        }
+        .cine-btn:hover { border-color: var(--gold); color: var(--gold); }
+        .logout-btn { padding: 12px 24px; border: 1px solid #333; background: transparent; color: white; cursor: pointer; text-transform: uppercase; font-size: 0.7rem; letter-spacing: 2px; transition: 0.3s; }
+        .logout-btn:hover { border-color: #ef4444; color: #ef4444; }
+
+        /* TABLE */
+        .table-container { height: 700px; overflow-y: auto; padding-right: 15px; }
+        .table-container::-webkit-scrollbar { width: 4px; }
+        .table-container::-webkit-scrollbar-thumb { background: #333; }
+        table { width: 100%; border-collapse: collapse; text-align: left; }
+        th { font-size: 0.65rem; text-transform: uppercase; letter-spacing: 2px; color: #666; border-bottom: 1px solid #222; padding-bottom: 16px; font-weight: 400; }
+        td { padding: 20px 0; border-bottom: 1px solid #111; font-size: 0.85rem; transition: background 0.3s; }
+        tr:hover td { background: #0a0a0a; }
+        .td-id { color: #444; font-family: monospace; font-size: 0.75rem; width: 60px; }
+        .td-title { color: #eee; letter-spacing: 0.05em; }
+        .td-artist { color: #666; font-size: 0.75rem; margin-top: 4px; }
+        .td-genre { color: #888; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 1px; }
+        .btn-del { background: transparent; border: none; font-size: 0.65rem; text-transform: uppercase; letter-spacing: 2px; color: #555; cursor: pointer; transition: 0.3s; }
+        .btn-del:hover { color: #ef4444; }
+
+        @keyframes fadeUp { to { opacity: 1; transform: translateY(0); } from { transform: translateY(20px); } }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div>
+            <h1 class="font-serif">Master Control<span style="color: var(--gold)">.</span></h1>
+            <p class="op-label" id="adminLabel">DIRECTOR: UNKNOWN</p>
+        </div>
+        <button onclick="logout()" class="logout-btn">End Session</button>
+    </header>
+
+    <div class="dashboard">
+        
+        <!-- CSS GRID: Left Column -->
+        <div style="animation-delay: 0.1s;" class="cine-card">
+            <div class="stats-container">
+                <div>
+                    <div class="stat-label">Listeners</div>
+                    <div class="stat-number font-serif" id="uCount">0</div>
+                </div>
+                <div>
+                    <div class="stat-label">Master Tracks</div>
+                    <div class="stat-number font-serif" id="tCount">0</div>
+                </div>
+            </div>
+
+            <h2 class="form-title">Inject Audio File</h2>
+            <form id="addForm">
+                <input type="text" id="iTitle" required class="cine-input" placeholder="Track Designation">
+                <input type="text" id="iArtist" required class="cine-input" placeholder="Artist Entity">
+                <div class="input-row">
+                    <select id="iGenre" class="cine-input" required>
+                        <option value="" disabled selected>Select Genre</option>
+                        <option>Melody</option><option>Mass</option><option>Dance</option><option>Folk</option>
+                    </select>
+                    <input type="text" id="iDur" placeholder="MM:SS" required class="cine-input">
+                </div>
+                <input type="url" id="iCov" required class="cine-input" placeholder="High-Res Cover URL">
+                <button type="submit" class="cine-btn">Publish To Vault</button>
+            </form>
+        </div>
+
+        <!-- CSS GRID: Right Column -->
+        <div style="animation-delay: 0.2s;" class="cine-card">
+            <h2 class="form-title">Global Vault Registry</h2>
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Recording Data</th>
+                            <th>Genre</th>
+                            <th style="text-align: right;">Directive</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tBody"></tbody>
+                </table>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        const DB_KEY = 'aura_final_db';
+        const SESSION_KEY = 'aura_final_session';
+
+        const session = JSON.parse(localStorage.getItem(SESSION_KEY));
+        if (!session || session.role !== 'admin') window.location.href = 'login.html';
+        document.getElementById('adminLabel').innerText = `DIRECTOR: ${session.name}`;
+
+        const render = () => {
+            const db = JSON.parse(localStorage.getItem(DB_KEY));
+            document.getElementById('uCount').innerText = db.users.length;
+            document.getElementById('tCount').innerText = db.songs.length;
+
+            const tb = document.getElementById('tBody');
+            tb.innerHTML = '';
+            [...db.songs].reverse().forEach(s => {
+                tb.innerHTML += `
+                    <tr>
+                        <td class="td-id">#${s.id}</td>
+                        <td>
+                            <div class="td-title">${s.title}</div>
+                            <div class="td-artist">${s.artist}</div>
+                        </td>
+                        <td class="td-genre">${s.genre}</td>
+                        <td style="text-align: right;">
+                            <button onclick="del(${s.id})" class="btn-del">Purge</button>
+                        </td>
+                    </tr>
+                `;
+            });
+        };
+
+        document.getElementById('addForm').onsubmit = (e) => {
+            e.preventDefault();
+            const db = JSON.parse(localStorage.getItem(DB_KEY));
+            db.songs.push({
+                id: Date.now(),
+                title: document.getElementById('iTitle').value,
+                artist: document.getElementById('iArtist').value,
+                genre: document.getElementById('iGenre').value,
+                duration: document.getElementById('iDur').value,
+                cover: document.getElementById('iCov').value
+            });
+            localStorage.setItem(DB_KEY, JSON.stringify(db));
+            e.target.reset();
+            render();
+        };
+
+        window.del = (id) => {
+            const db = JSON.parse(localStorage.getItem(DB_KEY));
+            db.songs = db.songs.filter(s => s.id !== id);
+            localStorage.setItem(DB_KEY, JSON.stringify(db));
+            render();
+        };
+
+        window.logout = () => {
+            document.body.style.opacity = 0;
+            document.body.style.transition = "opacity 0.8s ease";
+            setTimeout(() => {
+                localStorage.removeItem(SESSION_KEY);
+                window.location.href = 'login.html';
+            }, 800);
+        };
+
+        render();
+    </script>
+</body>
+</html>

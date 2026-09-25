@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Aura | Secure Access</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600&family=Playfair+Display:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+    <style>
+        /* PURE VANILLA CSS RESET & VARIABLES */
+        :root {
+            --bg-obsidian: #050505;
+            --surface: #0f0f0f;
+            --gold: #cca43b;
+            --text-main: #f5f5f5;
+            --text-muted: #737373;
+            --transition-smooth: all 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Outfit', sans-serif; }
+
+        body {
+            background-color: var(--bg-obsidian);
+            color: var(--text-main);
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+        }
+
+        /* CUSTOM ANIMATIONS */
+        @keyframes cinematicReveal {
+            0% { opacity: 0; filter: blur(10px); transform: translateY(40px) scale(0.95); }
+            100% { opacity: 1; filter: blur(0); transform: translateY(0) scale(1); }
+        }
+        
+        .container {
+            width: 100%;
+            max-width: 500px;
+            padding: 40px;
+            animation: cinematicReveal 1.2s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+
+        /* TYPOGRAPHY */
+        .brand-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 4rem;
+            font-style: italic;
+            font-weight: 400;
+            margin-bottom: 8px;
+            letter-spacing: -1px;
+        }
+        .brand-dot { color: var(--gold); }
+        .subtitle {
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.3em;
+            color: var(--text-muted);
+            margin-bottom: 48px;
+        }
+
+        /* TABS */
+        .tabs {
+            display: flex;
+            gap: 30px;
+            margin-bottom: 40px;
+        }
+        .tab-btn {
+            background: none; border: none;
+            color: var(--text-muted);
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            font-weight: 500;
+            cursor: pointer;
+            padding-bottom: 4px;
+            position: relative;
+            transition: var(--transition-smooth);
+        }
+        .tab-btn.active { color: var(--text-main); }
+        .tab-btn::after {
+            content: '';
+            position: absolute;
+            bottom: 0; left: 0;
+            width: 0%; height: 1px;
+            background: var(--gold);
+            transition: var(--transition-smooth);
+        }
+        .tab-btn.active::after { width: 100%; }
+
+        /* FORMS */
+        .form-group { margin-bottom: 24px; position: relative; }
+        .cine-input {
+            width: 100%;
+            background: transparent;
+            border: none;
+            border-bottom: 1px solid #333;
+            color: var(--text-main);
+            padding: 12px 0;
+            font-size: 0.95rem;
+            transition: var(--transition-smooth);
+        }
+        .cine-input:focus { outline: none; border-bottom-color: var(--gold); }
+        .cine-input::placeholder { color: #444; }
+
+        /* BUTTON */
+        .cine-btn {
+            width: 100%;
+            background: var(--surface);
+            border: 1px solid #333;
+            color: var(--text-main);
+            padding: 20px 0;
+            margin-top: 16px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            font-size: 0.75rem;
+            font-weight: 500;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+            transition: var(--transition-smooth);
+        }
+        .cine-btn::before {
+            content: '';
+            position: absolute; top: 0; left: -100%;
+            width: 100%; height: 100%;
+            background: var(--gold);
+            transition: var(--transition-smooth);
+            z-index: -1;
+        }
+        .cine-btn:hover::before { left: 0; }
+        .cine-btn:hover { color: #000; border-color: var(--gold); transform: translateY(-2px); }
+
+        /* TOAST */
+        #toast {
+            position: fixed; top: 30px; right: 30px;
+            background: #111; border: 1px solid #333;
+            color: white; padding: 16px 24px;
+            font-size: 0.85rem; text-transform: uppercase; letter-spacing: 2px;
+            transform: translateX(150%);
+            transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+            z-index: 1000;
+        }
+    </style>
+</head>
+<body>
+
+    <div id="toast"></div>
+
+    <div class="container">
+        <h1 class="brand-title">Aura<span class="brand-dot">.</span></h1>
+        <p class="subtitle">The Sound Of Cinema</p>
+
+        <div class="tabs">
+            <button onclick="switchTab('login')" id="tab-login" class="tab-btn active">Authenticate</button>
+            <button onclick="switchTab('register')" id="tab-register" class="tab-btn">Enroll</button>
+        </div>
+
+        <form id="authForm">
+            <div class="form-group" id="nameField" style="display: none;">
+                <input type="text" id="name" class="cine-input" placeholder="Full Designation">
+            </div>
+            <div class="form-group">
+                <input type="email" id="email" required class="cine-input" placeholder="Email Address">
+            </div>
+            <div class="form-group">
+                <input type="password" id="password" required class="cine-input" placeholder="Passkey">
+            </div>
+            <button type="submit" id="submitBtn" class="cine-btn">Enter Studio</button>
+        </form>
+    </div>
+
+    <script>
+        const DB_KEY = 'aura_final_db';
+        const SESSION_KEY = 'aura_final_session';
+        let mode = 'login';
+
+        // Tollywood DB Initialization
+        if (!localStorage.getItem(DB_KEY)) {
+            localStorage.setItem(DB_KEY, JSON.stringify({
+                users: [{ name: 'Director', email: 'admin@aura.com', pass: 'admin123', role: 'admin' }],
+                songs: [
+                    { id: 1, title: 'Naatu Naatu', artist: 'Kaala Bhairava, Rahul Sipligunj', genre: 'Mass', duration: '3:34', cover: 'https://images.unsplash.com/photo-1514525253161-7a46d19cd819?w=500&q=80' },
+                    { id: 2, title: 'Butta Bomma', artist: 'Armaan Malik', genre: 'Melody', duration: '3:17', cover: 'https://images.unsplash.com/photo-1493225457224-b1eb21f5756c?w=500&q=80' },
+                    { id: 3, title: 'Samajavaragamana', artist: 'Sid Sriram', genre: 'Melody', duration: '3:42', cover: 'https://images.unsplash.com/photo-1507838153414-b4b713384a76?w=500&q=80' },
+                    { id: 4, title: 'Oo Antava Mava', artist: 'Indravathi Chauhan', genre: 'Dance', duration: '3:43', cover: 'https://images.unsplash.com/photo-1546367564-ade1880f8921?w=500&q=80' },
+                    { id: 5, title: 'Srivalli', artist: 'Sid Sriram', genre: 'Melody', duration: '3:44', cover: 'https://images.unsplash.com/photo-1459749411175-04bf5292ceea?w=500&q=80' }
+                ]
+            }));
+        }
+
+        const showToast = (msg, isErr = false) => {
+            const t = document.getElementById('toast');
+            t.textContent = msg;
+            t.style.borderLeft = isErr ? '2px solid #ef4444' : '2px solid var(--gold)';
+            t.style.transform = 'translateX(0)';
+            setTimeout(() => t.style.transform = 'translateX(150%)', 3000);
+        };
+
+        const switchTab = (m) => {
+            mode = m;
+            document.getElementById('nameField').style.display = m === 'register' ? 'block' : 'none';
+            document.getElementById('name').required = m === 'register';
+            document.getElementById('tab-login').className = `tab-btn ${m === 'login' ? 'active' : ''}`;
+            document.getElementById('tab-register').className = `tab-btn ${m === 'register' ? 'active' : ''}`;
+            document.getElementById('submitBtn').textContent = m === 'login' ? 'Enter Studio' : 'Establish Identity';
+        };
+
+        document.getElementById('authForm').addEventListener('submit', (e) => {
+            e.preventDefault();
+            const email = document.getElementById('email').value.trim();
+            const pass = document.getElementById('password').value;
+            const db = JSON.parse(localStorage.getItem(DB_KEY));
+
+            if (mode === 'register') {
+                const name = document.getElementById('name').value.trim();
+                if (db.users.find(u => u.email === email)) return showToast('Identity exists', true);
+                
+                db.users.push({ name, email, pass, role: 'user' });
+                localStorage.setItem(DB_KEY, JSON.stringify(db));
+                showToast('Identity Established');
+                setTimeout(() => switchTab('login'), 1000);
+            } else {
+                const user = db.users.find(u => u.email === email && u.pass === pass);
+                if (!user) return showToast('Access Denied', true);
+                
+                localStorage.setItem(SESSION_KEY, JSON.stringify(user));
+                document.body.style.opacity = 0; 
+                document.body.style.transition = "opacity 0.8s ease";
+                setTimeout(() => {
+                    window.location.href = user.role === 'admin' ? 'admin.html' : 'user.html';
+                }, 800);
+            }
+        });
+    </script>
+</body>
+</html>
