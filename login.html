@@ -3,163 +3,163 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AURA // SYSTEM_AUTH</title>
-    <link href="https://fonts.googleapis.com/css2?family=Space+Mono:ital,wght@0,400;0,700;1,400;1,700&family=Work+Sans:wght@400;600;800;900&display=swap" rel="stylesheet">
+    <title>Aura | Sign In</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
         :root {
-            --bg-color: #f4f0ea; 
-            --border-color: #111;
-            --accent-primary: #ff3e00; 
-            --accent-secondary: #0055ff; 
+            --bg-color: #000000;
+            --card-bg: rgba(28, 28, 30, 0.7);
+            --border: rgba(255, 255, 255, 0.15);
+            --accent: #fa233b; 
+            --text-main: #ffffff;
+            --text-muted: rgba(235, 235, 245, 0.6);
         }
 
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-
-        body { 
-            background-color: var(--bg-color); 
-            color: #111; 
-            font-family: 'Work Sans', sans-serif;
-            background-image: 
-                linear-gradient(var(--border-color) 1px, transparent 1px),
-                linear-gradient(90deg, var(--border-color) 1px, transparent 1px);
-            background-size: 40px 40px;
-            background-position: -1px -1px;
-            min-height: 100vh;
-            display: flex; align-items: center; justify-content: center;
-            padding: 20px;
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', -apple-system, sans-serif; }
+        
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            height: 100vh; display: flex; align-items: center; justify-content: center;
+            overflow: hidden; position: relative;
+            background: radial-gradient(circle at 50% -20%, #2a0810 0%, #000 70%);
         }
 
-        .brutal-box {
-            background: #fff;
-            border: 4px solid var(--border-color);
-            box-shadow: 12px 12px 0px var(--border-color);
-            transition: all 0.2s ease;
-            position: relative;
+        .ambient-bg { position: absolute; inset: 0; z-index: -1; overflow: hidden; background: #000; }
+        .blob { position: absolute; filter: blur(90px); border-radius: 50%; animation: float 20s infinite alternate ease-in-out; opacity: 0.6; }
+        .blob-1 { top: -10%; left: -10%; width: 50vw; height: 50vw; background: #fa233b; }
+        .blob-2 { bottom: -20%; right: -10%; width: 60vw; height: 60vw; background: #5e5ce6; animation-delay: -5s; }
+        @keyframes float { 0% { transform: translate(0, 0) scale(1); } 100% { transform: translate(10%, 10%) scale(1.2); } }
+
+        .auth-card {
+            background: var(--card-bg); backdrop-filter: blur(40px) saturate(180%); -webkit-backdrop-filter: blur(40px) saturate(180%);
+            border: 1px solid var(--border); border-radius: 24px;
+            padding: 40px; width: 100%; max-width: 400px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.4);
+            transform: scale(0.95); opacity: 0;
+            animation: popIn 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+        @keyframes popIn { to { transform: scale(1); opacity: 1; } }
+
+        .logo { display: flex; justify-content: center; margin-bottom: 20px; color: var(--accent); }
+        .logo svg { width: 48px; height: 48px; fill: currentColor; }
+
+        h1 { text-align: center; font-size: 24px; font-weight: 700; margin-bottom: 5px; letter-spacing: -0.5px; }
+        p.subtitle { text-align: center; font-size: 14px; color: var(--text-muted); margin-bottom: 30px; }
+
+        .segmented-control {
+            display: flex; background: rgba(0,0,0,0.3); border-radius: 10px;
+            padding: 3px; margin-bottom: 30px; position: relative;
+        }
+        .seg-btn {
+            flex: 1; background: transparent; border: none; color: var(--text-muted);
+            padding: 8px 0; font-size: 13px; font-weight: 600; cursor: pointer;
+            border-radius: 8px; transition: 0.3s; z-index: 1;
+        }
+        .seg-btn.active { color: #fff; }
+        .seg-indicator {
+            position: absolute; top: 3px; bottom: 3px; width: calc(50% - 3px);
+            background: rgba(255,255,255,0.15); border-radius: 8px;
+            transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.2);
         }
 
-        .brutal-input {
-            width: 100%;
-            padding: 12px;
-            background: #fff;
-            border: 3px solid var(--border-color);
-            border-radius: 0;
-            font-family: 'Space Mono', monospace;
-            font-weight: 700;
-            transition: all 0.2s;
-            margin-bottom: 20px;
+        .input-group { margin-bottom: 15px; }
+        .apple-input {
+            width: 100%; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1);
+            color: #fff; padding: 14px 16px; border-radius: 12px; font-size: 15px; transition: 0.3s;
         }
-        .brutal-input:focus {
-            outline: none;
-            box-shadow: 4px 4px 0px var(--accent-secondary);
-            transform: translate(-2px, -2px);
-        }
+        .apple-input:focus { outline: none; border-color: var(--accent); background: rgba(255,255,255,0.1); }
+        .apple-input::placeholder { color: rgba(235, 235, 245, 0.3); }
 
-        .brutal-btn {
-            width: 100%;
-            padding: 16px;
-            background: var(--accent-primary);
-            color: #fff;
-            border: 4px solid var(--border-color);
-            box-shadow: 6px 6px 0px var(--border-color);
-            text-transform: uppercase;
-            font-weight: 900;
-            font-size: 1.2rem;
-            letter-spacing: 1px;
-            transition: all 0.1s;
-            cursor: pointer;
-            margin-top: 10px;
+        .apple-btn {
+            width: 100%; background: var(--accent); color: #fff; border: none;
+            padding: 14px; border-radius: 12px; font-size: 15px; font-weight: 600;
+            cursor: pointer; margin-top: 15px; transition: 0.2s;
         }
-        .brutal-btn:active {
-            box-shadow: 0px 0px 0px var(--border-color);
-            transform: translate(6px, 6px);
-        }
-
-        .tab-container { display: flex; gap: 20px; margin-bottom: 30px; }
-        .tab-btn {
-            flex: 1; text-align: left; padding-bottom: 8px;
-            background: transparent; border: none; border-bottom: 4px solid transparent;
-            font-family: 'Work Sans', sans-serif; font-weight: 800; font-size: 1.1rem;
-            text-transform: uppercase; color: #888; cursor: pointer; transition: 0.2s;
-        }
-        .tab-btn.active { border-bottom-color: var(--border-color); color: var(--accent-primary); }
-
-        label { display: block; font-weight: 800; margin-bottom: 8px; text-transform: uppercase; font-size: 0.8rem; letter-spacing: 1px; }
-
-        h1 { font-size: 4rem; font-weight: 900; text-transform: uppercase; letter-spacing: -2px; line-height: 1; margin-bottom: 5px; }
-        .subtitle { font-family: 'Space Mono', monospace; font-size: 0.85rem; font-weight: 700; border-bottom: 4px solid var(--border-color); padding-bottom: 20px; margin-bottom: 30px; display: block; }
+        .apple-btn:hover { filter: brightness(1.1); }
+        .apple-btn:active { transform: scale(0.97); }
 
         #toast {
-            position: fixed; top: 20px; right: 20px;
-            background: #fff; border: 4px solid var(--border-color); box-shadow: 6px 6px 0px var(--border-color);
-            padding: 15px 20px; font-weight: 800; font-family: 'Space Mono', monospace;
-            transform: translateX(150%); transition: transform 0.3s ease; z-index: 100;
+            position: fixed; top: 30px; left: 50%; transform: translate(-50%, -100px);
+            background: rgba(30, 30, 30, 0.85); backdrop-filter: blur(20px);
+            border: 1px solid var(--border); padding: 12px 24px;
+            border-radius: 30px; font-size: 14px; font-weight: 500;
+            transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1); z-index: 100;
         }
     </style>
 </head>
 <body>
+    <div class="ambient-bg"><div class="blob blob-1"></div><div class="blob blob-2"></div></div>
+    <div id="toast"></div>
 
-    <div id="toast">SYSTEM_MESSAGE</div>
+    <div class="auth-card">
+        <div class="logo">
+            <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 14.5v-9l6 4.5-6 4.5z"/></svg>
+        </div>
+        <h1>Aura ID</h1>
+        <p class="subtitle">Sign in to access your music.</p>
 
-    <div class="brutal-box" style="width: 100%; max-width: 450px; padding: 40px;">
-        <h1>Aura.</h1>
-        <span class="subtitle">TOLLYWOOD_VAULT</span>
-
-        <div class="tab-container">
-            <button onclick="switchTab('login')" id="tab-login" class="tab-btn active">Log In</button>
-            <button onclick="switchTab('register')" id="tab-register" class="tab-btn">Sign Up</button>
+        <div class="segmented-control">
+            <div class="seg-indicator" id="indicator"></div>
+            <button class="seg-btn active" id="btn-login" onclick="switchMode('login')">Sign In</button>
+            <button class="seg-btn" id="btn-register" onclick="switchMode('register')">Create ID</button>
         </div>
 
         <form id="authForm">
-            <div id="nameField" style="display: none;">
-                <label>Designation</label>
-                <input type="text" id="name" class="brutal-input" placeholder="YOUR NAME">
+            <div class="input-group" id="nameGroup" style="display: none;">
+                <input type="text" id="name" class="apple-input" placeholder="First & Last Name">
             </div>
-            <div>
-                <label>Identity</label>
-                <input type="email" id="email" required class="brutal-input" placeholder="EMAIL@DOMAIN.COM">
+            <div class="input-group">
+                <input type="email" id="email" required class="apple-input" placeholder="Email (Aura ID)">
             </div>
-            <div>
-                <label>Passkey</label>
-                <input type="password" id="password" required class="brutal-input" placeholder="••••••••">
+            <div class="input-group">
+                <input type="password" id="password" required class="apple-input" placeholder="Password">
             </div>
-            <button type="submit" id="submitBtn" class="brutal-btn">Access System</button>
+            <button type="submit" class="apple-btn" id="submitBtn">Sign In</button>
         </form>
     </div>
 
     <script>
-        const DB_KEY = 'aura_brutal_db';
-        const SESSION_KEY = 'aura_brutal_session';
-        let mode = 'login';
+        const DB_KEY = 'aura_am_final_db';
+        const SESSION_KEY = 'aura_am_final_session';
+        let isLogin = true;
 
+        // Expanded 10-Song Tollywood Database
         if (!localStorage.getItem(DB_KEY)) {
             localStorage.setItem(DB_KEY, JSON.stringify({
-                users: [{ name: 'System Admin', email: 'admin@aura.com', pass: 'admin123', role: 'admin' }],
+                users: [{ name: 'Admin', email: 'admin@aura.com', pass: 'admin123', role: 'admin' }],
                 songs: [
-                    { id: 1, title: 'Naatu Naatu', artist: 'Kaala Bhairava, Rahul S.', genre: 'Mass', duration: '3:34', cover: 'https://images.unsplash.com/photo-1514525253161-7a46d19cd819?w=400&q=80' },
-                    { id: 2, title: 'Butta Bomma', artist: 'Armaan Malik', genre: 'Melody', duration: '3:17', cover: 'https://images.unsplash.com/photo-1493225457224-b1eb21f5756c?w=400&q=80' },
-                    { id: 3, title: 'Samajavaragamana', artist: 'Sid Sriram', genre: 'Melody', duration: '3:42', cover: 'https://images.unsplash.com/photo-1507838153414-b4b713384a76?w=400&q=80' },
-                    { id: 4, title: 'Oo Antava Mava', artist: 'Indravathi Chauhan', genre: 'Dance', duration: '3:43', cover: 'https://images.unsplash.com/photo-1546367564-ade1880f8921?w=400&q=80' },
-                    { id: 5, title: 'Srivalli', artist: 'Sid Sriram', genre: 'Melody', duration: '3:44', cover: 'https://images.unsplash.com/photo-1459749411175-04bf5292ceea?w=400&q=80' }
+                    { id: 1, title: 'Naatu Naatu', artist: 'Kaala Bhairava', album: 'RRR', genre: 'Mass', duration: '3:34', cover: 'https://images.unsplash.com/photo-1514525253161-7a46d19cd819?w=500&q=80' },
+                    { id: 2, title: 'Butta Bomma', artist: 'Armaan Malik', album: 'AVPL', genre: 'Melody', duration: '3:17', cover: 'https://images.unsplash.com/photo-1493225457224-b1eb21f5756c?w=500&q=80' },
+                    { id: 3, title: 'Samajavaragamana', artist: 'Sid Sriram', album: 'AVPL', genre: 'Melody', duration: '3:42', cover: 'https://images.unsplash.com/photo-1507838153414-b4b713384a76?w=500&q=80' },
+                    { id: 4, title: 'Oo Antava', artist: 'Indravathi', album: 'Pushpa', genre: 'Dance', duration: '3:43', cover: 'https://images.unsplash.com/photo-1546367564-ade1880f8921?w=500&q=80' },
+                    { id: 5, title: 'Srivalli', artist: 'Sid Sriram', album: 'Pushpa', genre: 'Melody', duration: '3:44', cover: 'https://images.unsplash.com/photo-1459749411175-04bf5292ceea?w=500&q=80' },
+                    { id: 6, title: 'Dum Masala', artist: 'Sanjith Hegde', album: 'Guntur Kaaram', genre: 'Mass', duration: '3:22', cover: 'https://images.unsplash.com/photo-1470225620780-dba8ba36b745?w=500&q=80' },
+                    { id: 7, title: 'Kurchi Madathapetti', artist: 'Sri Krishna', album: 'Guntur Kaaram', genre: 'Dance', duration: '3:35', cover: 'https://images.unsplash.com/photo-1508700115892-45ecd05ae2ad?w=500&q=80' },
+                    { id: 8, title: 'Ramuloo Ramulaa', artist: 'Anurag Kulkarni', album: 'AVPL', genre: 'Mass', duration: '4:02', cover: 'https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?w=500&q=80' },
+                    { id: 9, title: 'Inkem Inkem', artist: 'Sid Sriram', album: 'Geetha Govindam', genre: 'Melody', duration: '4:28', cover: 'https://images.unsplash.com/photo-1498038432885-c6f3f1b912ee?w=500&q=80' },
+                    { id: 10, title: 'Hukum', artist: 'Anirudh', album: 'Jailer', genre: 'BGM', duration: '3:27', cover: 'https://images.unsplash.com/photo-1614613535308-eb5fbd3d2c17?w=500&q=80' }
                 ]
             }));
         }
 
         const showToast = (msg, isErr = false) => {
-            const t = document.getElementById('toast');
-            t.textContent = msg;
-            t.style.backgroundColor = isErr ? 'var(--accent-primary)' : 'var(--accent-secondary)';
-            t.style.color = '#fff';
-            t.style.transform = 'translateX(0)';
-            setTimeout(() => t.style.transform = 'translateX(150%)', 3000);
+            const toast = document.getElementById('toast');
+            toast.textContent = msg;
+            toast.style.color = isErr ? '#ff453a' : '#fff';
+            toast.style.transform = 'translate(-50%, 20px)';
+            setTimeout(() => toast.style.transform = 'translate(-50%, -100px)', 3000);
         };
 
-        const switchTab = (m) => {
-            mode = m;
-            document.getElementById('nameField').style.display = m === 'register' ? 'block' : 'none';
-            document.getElementById('name').required = m === 'register';
-            document.getElementById('tab-login').className = `tab-btn ${m === 'login' ? 'active' : ''}`;
-            document.getElementById('tab-register').className = `tab-btn ${m === 'register' ? 'active' : ''}`;
-            document.getElementById('submitBtn').textContent = m === 'login' ? 'Access System' : 'Register Entity';
+        const switchMode = (mode) => {
+            isLogin = mode === 'login';
+            document.getElementById('nameGroup').style.display = isLogin ? 'none' : 'block';
+            document.getElementById('name').required = !isLogin;
+            document.getElementById('btn-login').classList.toggle('active', isLogin);
+            document.getElementById('btn-register').classList.toggle('active', !isLogin);
+            document.getElementById('indicator').style.transform = isLogin ? 'translateX(0)' : 'translateX(100%)';
+            document.getElementById('submitBtn').textContent = isLogin ? 'Sign In' : 'Create Aura ID';
         };
 
         document.getElementById('authForm').addEventListener('submit', (e) => {
@@ -168,25 +168,21 @@
             const pass = document.getElementById('password').value;
             const db = JSON.parse(localStorage.getItem(DB_KEY));
 
-            if (mode === 'register') {
+            if (!isLogin) {
                 const name = document.getElementById('name').value.trim();
-                if (db.users.find(u => u.email === email)) return showToast('IDENTITY EXISTS', true);
+                if (db.users.find(u => u.email === email)) return showToast('Aura ID already exists', true);
                 
                 db.users.push({ name, email, pass, role: 'user' });
                 localStorage.setItem(DB_KEY, JSON.stringify(db));
-                showToast('REGISTRATION LOGGED');
-                setTimeout(() => switchTab('login'), 1000);
+                showToast('Aura ID Created');
+                setTimeout(() => switchMode('login'), 1000);
             } else {
                 const user = db.users.find(u => u.email === email && u.pass === pass);
-                if (!user) return showToast('ACCESS DENIED', true);
+                if (!user) return showToast('Incorrect email or password', true);
                 
                 localStorage.setItem(SESSION_KEY, JSON.stringify(user));
-                
-                if (user.role === 'admin') {
-                    window.location.href = 'admin.html';
-                } else {
-                    window.location.href = 'user.html';
-                }
+                document.body.style.transition = 'opacity 0.6s ease'; document.body.style.opacity = '0';
+                setTimeout(() => { window.location.href = user.role === 'admin' ? 'admin.html' : 'user.html'; }, 600);
             }
         });
     </script>
